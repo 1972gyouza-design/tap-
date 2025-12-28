@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tap to Meaning</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:#111; color:#fff; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 12px; }
+    .stage { position: relative; width: 100%; }
+    .stage img { width: 100%; height: auto; display: block; border-radius: 12px; }
+
+    /* 2行×5列の透明ボタン */
+    .hotspot {
+      position: absolute;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      /* デバッグしたい時だけ枠を出す
+      outline: 2px solid rgba(0,255,255,.35);
+      */
+    }
+
+    dialog {
+      width: min(92vw, 520px);
+      border: none;
+      border-radius: 14px;
+      padding: 16px 16px 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.55);
+    }
+    dialog::backdrop { background: rgba(0,0,0,.55); }
+    .word { font-size: 22px; font-weight: 800; letter-spacing: .5px; margin: 0 0 6px; }
+    .meaning { font-size: 16px; line-height: 1.6; margin: 0 0 10px; color: #222; }
+    .actions { display:flex; justify-content:flex-end; gap: 8px; }
+    .btn { border: 0; border-radius: 10px; padding: 10px 12px; cursor:pointer; }
+    .close { background:#111; color:#fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 style="margin:6px 0 10px;">カードをタップすると意味が出ます</h2>
+
+    <div class="stage" id="stage">
+      <img src="cards.jpg" alt="vocab cards" />
+
+      <!-- 上段 5枚 -->
+      <button class="hotspot" style="left:0%;   top:0%;  width:20%; height:50%;" data-key="PRAISE" aria-label="PRAISE"></button>
+      <button class="hotspot" style="left:20%;  top:0%;  width:20%; height:50%;" data-key="COMPLIMENT" aria-label="COMPLIMENT"></button>
+      <button class="hotspot" style="left:40%;  top:0%;  width:20%; height:50%;" data-key="COMMEND" aria-label="COMMEND"></button>
+      <button class="hotspot" style="left:60%;  top:0%;  width:20%; height:50%;" data-key="LAUD" aria-label="LAUD"></button>
+      <button class="hotspot" style="left:80%;  top:0%;  width:20%; height:50%;" data-key="EULOGIZE" aria-label="EULOGIZE"></button>
+
+      <!-- 下段 5枚 -->
+      <button class="hotspot" style="left:0%;   top:50%; width:20%; height:50%;" data-key="EXTOL" aria-label="EXTOL"></button>
+      <button class="hotspot" style="left:20%;  top:50%; width:20%; height:50%;" data-key="ACCLAIM" aria-label="ACCLAIM"></button>
+      <button class="hotspot" style="left:40%;  top:50%; width:20%; height:50%;" data-key="HAIL" aria-label="HAIL"></button>
+      <button class="hotspot" style="left:60%;  top:50%; width:20%; height:50%;" data-key="AGGRANDIZE" aria-label="AGGRANDIZE"></button>
+      <button class="hotspot" style="left:80%;  top:50%; width:20%; height:50%;" data-key="DENOUNCE" aria-label="DENOUNCE"></button>
+    </div>
+  </div>
+
+  <dialog id="dlg">
+    <p class="word" id="dlgWord"></p>
+    <p class="meaning" id="dlgMeaning"></p>
+    <div class="actions">
+      <button class="btn close" id="dlgClose">閉じる</button>
+    </div>
+  </dialog>
+
+  <script>
+    // 単語→意味（必要ならここを好きに編集）
+    const meanings = {
+      PRAISE:      "（人・行為を）ほめる／称賛する",
+      COMPLIMENT:  "ほめ言葉を言う／賛辞（を述べる）",
+      COMMEND:     "（公に）称賛する／推薦する",
+      LAUD:        "（大げさに）たたえる／ほめちぎる",
+      EULOGIZE:    "（故人などを）追悼してほめたたえる／賛辞を述べる",
+      EXTOL:       "（長所を）大いにほめたたえる／力説する",
+      ACCLAIM:     "歓呼して迎える／喝采する（名声としての“称賛”）",
+      HAIL:        "（英雄視して）歓迎する／～とたたえる",
+      AGGRANDIZE:  "（権力・地位・重要性を）誇張して大きく見せる",
+      DENOUNCE:    "（公然と）非難する／糾弾する"
+    };
+
+    const dlg = document.getElementById("dlg");
+    const dlgWord = document.getElementById("dlgWord");
+    const dlgMeaning = document.getElementById("dlgMeaning");
+    document.getElementById("dlgClose").addEventListener("click", () => dlg.close());
+
+    document.querySelectorAll(".hotspot").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.key;
+        dlgWord.textContent = key;
+        dlgMeaning.textContent = meanings[key] ?? "意味が未登録です。";
+        dlg.showModal();
+      });
+    });
+
+    // ESCや背景クリックで閉じやすく
+    dlg.addEventListener("click", (e) => {
+      const rect = dlg.getBoundingClientRect();
+      const inDialog = rect.top <= e.clientY && e.clientY <= rect.bottom &&
+                       rect.left <= e.clientX && e.clientX <= rect.right;
+      if (!inDialog) dlg.close();
+    });
+  </script>
+</body>
+</html>
